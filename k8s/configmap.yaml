@@ -17,7 +17,6 @@ data:
   AWS_REGION: "us-east-1"
   AWS_USER_POOL_ID: "us-east-1_oesTGe9D5"
   AWS_CLIENT_ID: "6ugujl077j6fmcqgptjmn91b7e"
-  AWS_ACCESS_KEY_ID: "your-access-key-here"
   
   # API Configuration
   API_PORT: "3001"
