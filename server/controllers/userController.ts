@@ -106,6 +106,7 @@ export async function deleteAccount(
   const userService = getUserService();
   const authService = getAuthService();
 
+  // 1. DB에서 유저 삭제
   try {
     console.log('[deleteAccount] Deleting user from database...');
     await userService.deleteUser(userId);
@@ -119,12 +120,14 @@ export async function deleteAccount(
     return;
   }
 
+  // 2. Cognito에서 유저 삭제
   try {
     console.log('[deleteAccount] Deleting user from Cognito...');
     await authService.deleteUser(userId);
     console.log('[deleteAccount] User deleted from Cognito successfully');
   } catch (error: any) {
-    console.warn('[deleteAccount] Failed to delete user from Cognito:', error.message);
+    // DB는 이미 삭제됐으므로 Cognito 실패해도 성공 응답
+    console.error('[deleteAccount] Failed to delete user from Cognito:', error.message);
   }
 
   res.json({

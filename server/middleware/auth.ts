@@ -4,6 +4,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { getAuthService } from '../../src/services/authService';
+import { getUserService, UserNotFoundError } from '../../src/services/userService';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -32,6 +33,23 @@ export async function authMiddleware(
     const token = authHeader.substring(7);
     const authService = getAuthService();
     const decodedToken = await authService.verifyToken(token);
+
+    // DB에 유저가 없으면 자동 생성 (Google 로그인 등 소셜 로그인 대응)
+    const userService = getUserService();
+    try {
+      await userService.getUserProfile(decodedToken.sub);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        console.log(`[authMiddleware] Creating new user in DB: ${decodedToken.sub}`);
+        await userService.createUser(
+          decodedToken.sub,
+          decodedToken.email,
+          decodedToken.preferred_username || decodedToken.email
+        );
+      } else {
+        throw error;
+      }
+    }
 
     req.user = {
       userId: decodedToken.sub,
