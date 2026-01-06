@@ -15,6 +15,7 @@ spec:
       labels:
         app: fproject-backend
     spec:
+      serviceAccountName: fproject-backend-sa
       containers:
       - name: backend
         image: 324547056370.dkr.ecr.us-east-1.amazonaws.com/fproject-dev-api:latest
@@ -137,15 +138,4 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
-        volumeMounts:
-        - name: secrets-store
-          mountPath: "/mnt/secrets-store"
-          readOnly: true
-      volumes:
-      - name: secrets-store
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "fproject-backend-secrets"
       restartPolicy: Always

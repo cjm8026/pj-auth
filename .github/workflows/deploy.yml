@@ -52,8 +52,25 @@ jobs:
           # Update image tag in deployment
           sed -i "s|324547056370.dkr.ecr.us-east-1.amazonaws.com/fproject-dev-api:v11|${{ env.IMAGE }}|g" k8s/deployment.yaml
       
+      - name: Create Kubernetes Secret from GitHub Secrets
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          kubectl create secret generic fproject-backend-secret \
+            --from-literal=DB_PASSWORD="$DB_PASSWORD" \
+            --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+            --from-literal=AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+            --from-literal=AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+            --dry-run=client -o yaml | kubectl apply -f - --force
+          
+          kubectl rollout restart deployment/fproject-backend
+      
       - name: Deploy to Kubernetes
         run: |
+          kubectl apply -f k8s/serviceaccount.yaml
           kubectl apply -f k8s/secret-provider-class.yaml
           kubectl apply -f k8s/configmap.yaml
           kubectl apply -f k8s/deployment.yaml
