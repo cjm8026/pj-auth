@@ -60,9 +60,16 @@ jobs:
           # Delete existing secret if it exists (force refresh)
           kubectl delete secret fproject-backend-secret --ignore-not-found=true
           
-          # Wait for deletion to complete
+          # Wait for deletion to complete (check every second for up to 30 seconds)
           echo "Waiting for secret deletion to complete..."
-          sleep 5
+          for i in {1..30}; do
+            if ! kubectl get secret fproject-backend-secret 2>/dev/null; then
+              echo "Secret deleted successfully"
+              break
+            fi
+            echo "Still waiting... ($i/30)"
+            sleep 1
+          done
           
           # Create new secret with correct values
           kubectl create secret generic fproject-backend-secret \
