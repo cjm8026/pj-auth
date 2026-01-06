@@ -3,9 +3,11 @@
  */
 
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
+  credentials: fromNodeProviderChain(),
 });
 
 const S3_BUCKET = process.env.S3_BUCKET || 'knowledge-base-test-6575574';
