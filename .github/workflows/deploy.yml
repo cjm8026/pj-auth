@@ -60,6 +60,10 @@ jobs:
           # Delete existing secret if it exists (force refresh)
           kubectl delete secret fproject-backend-secret --ignore-not-found=true
           
+          # Wait for deletion to complete
+          echo "Waiting for secret deletion to complete..."
+          sleep 5
+          
           # Create new secret with correct values
           kubectl create secret generic fproject-backend-secret \
             --from-literal=DB_PASSWORD="$DB_PASSWORD" \
