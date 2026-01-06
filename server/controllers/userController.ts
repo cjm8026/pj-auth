@@ -130,6 +130,18 @@ export async function deleteAccount(
     console.error('[deleteAccount] Failed to delete user from Cognito:', error.message);
   }
 
+  // 3. S3에서 유저 폴더 삭제
+  try {
+    console.log('[deleteAccount] Deleting user folder from S3...');
+    const { getS3Service } = await import('../../src/services/s3Service');
+    const s3Service = getS3Service();
+    await s3Service.deleteUserFolder(userId);
+    console.log('[deleteAccount] User folder deleted from S3 successfully');
+  } catch (error: any) {
+    // S3 삭제 실패해도 계정 삭제는 성공으로 처리
+    console.error('[deleteAccount] Failed to delete user folder from S3:', error.message);
+  }
+
   res.json({
     success: true,
     message: 'Account deleted successfully',

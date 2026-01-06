@@ -2,7 +2,7 @@
  * S3 Service - Profile Image Upload
  */
 
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 
 // 환경변수에서 credentials를 명시적으로 설정
 const s3Client = new S3Client({
@@ -67,6 +67,49 @@ export class S3Service {
       console.log(`[S3Service] Profile image deleted: ${key}`);
     } catch (error) {
       console.error('[S3Service] Error deleting image:', error);
+    }
+  }
+
+  /**
+   * Delete entire user folder from S3 (for account deletion)
+   */
+  async deleteUserFolder(userId: string): Promise<void> {
+    try {
+      console.log(`[S3Service] Deleting all objects for user: ${userId}`);
+      
+      // List all objects with the userId prefix
+      const listCommand = new ListObjectsV2Command({
+        Bucket: S3_BUCKET,
+        Prefix: `${userId}/`,
+      });
+
+      const listResponse = await s3Client.send(listCommand);
+
+      if (!listResponse.Contents || listResponse.Contents.length === 0) {
+        console.log(`[S3Service] No objects found for user: ${userId}`);
+        return;
+      }
+
+      // Delete all objects
+      const objectsToDelete = listResponse.Contents.map(obj => ({ Key: obj.Key! }));
+      
+      const deleteCommand = new DeleteObjectsCommand({
+        Bucket: S3_BUCKET,
+        Delete: {
+          Objects: objectsToDelete,
+        },
+      });
+
+      const deleteResponse = await s3Client.send(deleteCommand);
+      
+      console.log(`[S3Service] Deleted ${deleteResponse.Deleted?.length || 0} objects for user: ${userId}`);
+      
+      if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+        console.error(`[S3Service] Errors deleting some objects:`, deleteResponse.Errors);
+      }
+    } catch (error) {
+      console.error('[S3Service] Error deleting user folder:', error);
+      // Don't throw - we want account deletion to succeed even if S3 cleanup fails
     }
   }
 }
