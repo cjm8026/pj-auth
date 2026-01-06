@@ -4,9 +4,15 @@
 
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
-// EKS에서는 IMDS를 통해 자동으로 credentials를 가져옴
+// 환경변수에서 credentials를 명시적으로 설정
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
+  credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+    ? {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      }
+    : undefined, // credentials가 없으면 기본 provider chain 사용
 });
 
 const S3_BUCKET = process.env.S3_BUCKET || 'knowledge-base-test-6575574';
