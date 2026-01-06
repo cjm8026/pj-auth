@@ -53,26 +53,19 @@ jobs:
           sed -i "s|324547056370.dkr.ecr.us-east-1.amazonaws.com/fproject-dev-api:v11|${{ env.IMAGE }}|g" k8s/deployment.yaml
       
       - name: Create Kubernetes Secret from GitHub Secrets
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
-          # Base64 encode secrets
-          DB_PASSWORD_B64=$(echo -n "${{ secrets.DB_PASSWORD }}" | base64 -w 0)
-          GOOGLE_CLIENT_SECRET_B64=$(echo -n "${{ secrets.GOOGLE_CLIENT_SECRET }}" | base64 -w 0)
+          # Base64 encode secrets using environment variables (safer)
+          DB_PASSWORD_B64=$(printf '%s' "$DB_PASSWORD" | base64 -w 0)
+          GOOGLE_CLIENT_SECRET_B64=$(printf '%s' "$GOOGLE_CLIENT_SECRET" | base64 -w 0)
           
-          # Create secret.yaml with actual values
-          cat > k8s/secret-generated.yaml << EOF
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: fproject-backend-secret
-            namespace: default
-          type: Opaque
-          data:
-            DB_PASSWORD: ${DB_PASSWORD_B64}
-            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET_B64}
-          EOF
-          
-          # Apply secret
-          kubectl apply -f k8s/secret-generated.yaml
+          # Create secret using kubectl directly (safer than yaml file)
+          kubectl create secret generic fproject-backend-secret \
+            --from-literal=DB_PASSWORD="$DB_PASSWORD" \
+            --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+            --dry-run=client -o yaml | kubectl apply -f -
       
       - name: Deploy to Kubernetes
         run: |
