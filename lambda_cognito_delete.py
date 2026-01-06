@@ -4,13 +4,13 @@ import os
 import psycopg2
 
 cognito_client = boto3.client('cognito-idp')
-USER_POOL_ID = os.environ.get('USER_POOL_ID', 'us-east-1_oesTGe9D5')
+USER_POOL_ID = os.environ.get('USER_POOL_ID')
 
 # Database connection parameters
-DB_HOST = os.environ.get('DB_HOST', 'fproject-dev-postgres.c9eksq6cmh3c.us-east-1.rds.amazonaws.com')
-DB_NAME = os.environ.get('DB_NAME', 'fproject_db')
-DB_USER = os.environ.get('DB_USER', 'fproject_user')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'test1234')
+DB_HOST = os.environ.get('DB_HOST')
+DB_NAME = os.environ.get('DB_NAME')
+DB_USER = os.environ.get('DB_USER')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_PORT = int(os.environ.get('DB_PORT', '5432'))
 
 def lambda_handler(event, context):
