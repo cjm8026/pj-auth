@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy-kubernetes
     # Lambda 함수가 존재할 때만 실행
-    if: true  # fproject-dev-db-query 함수 사용
+    if: true  # auth-db-query 함수 사용
     
     steps:
       - name: Checkout code
@@ -115,20 +115,20 @@ jobs:
       - name: Update Lambda function code
         run: |
           aws lambda update-function-code \
-            --function-name fproject-dev-db-query \
+            --function-name auth-db-query \
             --zip-file fileb://lambda_function.zip
       
       - name: Wait for code update to complete
         run: |
           echo "Waiting for Lambda function code update to complete..."
           aws lambda wait function-updated \
-            --function-name fproject-dev-db-query
+            --function-name auth-db-query
           echo "Code update completed!"
       
       - name: Update Lambda environment variables
         run: |
           aws lambda update-function-configuration \
-            --function-name fproject-dev-db-query \
+            --function-name auth-db-query \
             --environment "Variables={
               USER_POOL_ID=ap-northeast-2_mFvtIc1kQ,
               DB_HOST=one-postgres.cricim2es6bi.ap-northeast-2.rds.amazonaws.com,
@@ -142,7 +142,7 @@ jobs:
         run: |
           echo "Waiting for Lambda configuration update to complete..."
           aws lambda wait function-updated \
-            --function-name fproject-dev-db-query
+            --function-name auth-db-query
           echo "Configuration update completed!"
           echo "Lambda function deployed successfully!"
 
@@ -179,7 +179,7 @@ jobs:
             --stack-name lambda-warmup-stack \
             --template-body file://eventbridge-warmup.yaml \
             --parameters \
-              ParameterKey=LambdaFunctionName,ParameterValue=fproject-dev-db-query \
+              ParameterKey=LambdaFunctionName,ParameterValue=auth-db-query \
               ParameterKey=WarmUpSchedule,ParameterValue="rate(5 minutes)" \
             --capabilities CAPABILITY_IAM || true
           
@@ -193,10 +193,10 @@ jobs:
       - name: Verify EventBridge rule
         run: |
           echo "=== EventBridge Rule ==="
-          aws events describe-rule --name fproject-dev-db-query-warmup-rule
+          aws events describe-rule --name auth-db-query-warmup-rule
           echo ""
           echo "=== Rule Targets ==="
-          aws events list-targets-by-rule --rule fproject-dev-db-query-warmup-rule
+          aws events list-targets-by-rule --rule auth-db-query-warmup-rule
 
   notify:
     name: Deployment Notification
