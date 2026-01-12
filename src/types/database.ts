@@ -23,28 +23,6 @@ export interface UserProfile {
   updated_at: Date;
 }
 
-export interface UserReport {
-  report_id: number;
-  reporter_id: string;
-  reported_user_id: string;
-  reason: 'spam' | 'harassment' | 'inappropriate_content' | 'other';
-  description: string | null;
-  status: 'pending' | 'reviewed' | 'resolved';
-  created_at: Date;
-  reviewed_at: Date | null;
-}
-
-export interface UserInquiry {
-  inquiry_id: number;
-  user_id: string;
-  subject: string;
-  message: string;
-  status: 'pending' | 'answered' | 'closed';
-  response: string | null;
-  created_at: Date;
-  answered_at: Date | null;
-}
-
 export interface FullUserProfile {
   userId: string;
   email: string;
@@ -69,19 +47,6 @@ export interface UpdateUserProfileData {
   profile_image_url?: string;
   bio?: string;
   phone_number?: string;
-}
-
-export interface CreateUserReportData {
-  reporter_id: string;
-  reported_user_id: string;
-  reason: 'spam' | 'harassment' | 'inappropriate_content' | 'other';
-  description?: string;
-}
-
-export interface CreateUserInquiryData {
-  user_id: string;
-  subject: string;
-  message: string;
 }
 
 export interface QueryOptions {

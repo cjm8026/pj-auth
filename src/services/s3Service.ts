@@ -6,7 +6,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, 
 
 // 환경변수에서 credentials를 명시적으로 설정
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: process.env.AWS_REGION || 'ap-northeast-2',
   credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
     ? {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,

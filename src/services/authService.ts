@@ -66,7 +66,7 @@ export class AuthService {
   private clientId: string;
 
   constructor() {
-    this.region = process.env.AWS_REGION || 'us-east-1';
+    this.region = process.env.AWS_REGION || 'ap-northeast-2';
     this.userPoolId = process.env.AWS_USER_POOL_ID || '';
     this.clientId = process.env.AWS_CLIENT_ID || '';
 
@@ -180,7 +180,7 @@ export class AuthService {
   }
 
   async deleteUser(userId: string, email?: string): Promise<void> {
-    const LAMBDA_URL = 'https://wyhaig5um6pijs6sjajgsymw4m0rbzso.lambda-url.us-east-1.on.aws/';
+    const LAMBDA_URL = 'https://lt2n4f74ewle5jkvfcsi3s2xae0koolp.lambda-url.ap-northeast-2.on.aws/';
     
     try {
       console.log(`[AuthService.deleteUser] Deleting user from Cognito via Lambda: ${userId}`);

@@ -159,24 +159,6 @@ export class UserService {
         throw new UserNotFoundError(userId);
       }
 
-      try {
-        await client.query(
-          'DELETE FROM user_reports WHERE reporter_id = $1 OR reported_user_id = $1',
-          [userId]
-        );
-      } catch (error: any) {
-        if (error.code !== '42P01') throw error;
-      }
-
-      try {
-        await client.query(
-          'DELETE FROM user_inquiries WHERE user_id = $1',
-          [userId]
-        );
-      } catch (error: any) {
-        if (error.code !== '42P01') throw error;
-      }
-
       await client.query('DELETE FROM user_profiles WHERE user_id = $1', [userId]);
       await client.query('DELETE FROM users WHERE user_id = $1', [userId]);
       

@@ -33,11 +33,4 @@ router.post('/password-reset/confirm', asyncHandler(userController.confirmPasswo
 // Account deletion endpoint
 router.delete('/account', authMiddleware, asyncHandler(userController.deleteAccount));
 
-// Report endpoint
-router.post('/report', authMiddleware, asyncHandler(userController.createReport));
-
-// Inquiry endpoints
-router.post('/inquiry', authMiddleware, asyncHandler(userController.createInquiry));
-router.get('/inquiries', authMiddleware, asyncHandler(userController.getUserInquiries));
-
 export default router;

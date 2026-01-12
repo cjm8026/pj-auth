@@ -1,7 +1,7 @@
 const { CognitoIdentityProviderClient, AdminDeleteUserCommand } = require('@aws-sdk/client-cognito-identity-provider');
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: 'us-east-1' });
-const USER_POOL_ID = process.env.USER_POOL_ID || 'us-east-1_oesTGe9D5';
+const cognitoClient = new CognitoIdentityProviderClient({ region: 'ap-northeast-2' });
+const USER_POOL_ID = process.env.USER_POOL_ID || 'ap-northeast-2_mFvtIc1kQ';
 
 exports.handler = async (event) => {
     try {

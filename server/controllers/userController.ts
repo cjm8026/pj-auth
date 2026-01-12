@@ -6,8 +6,6 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { getUserService } from '../../src/services/userService';
 import { getAuthService } from '../../src/services/authService';
-import { getReportService } from '../../src/services/reportService';
-import { getInquiryService } from '../../src/services/inquiryService';
 import { getDatabaseService } from '../../src/services/database';
 
 export async function getUserProfile(
@@ -145,124 +143,6 @@ export async function deleteAccount(
   res.json({
     success: true,
     message: 'Account deleted successfully',
-  });
-}
-
-export async function createReport(
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> {
-  const reporterId = req.user!.userId;
-  const { reported_user_identifier, reason, description } = req.body;
-
-  if (!reported_user_identifier || !reason) {
-    res.status(400).json({
-      error: 'ValidationError',
-      message: 'reported_user_identifier (nickname or email) and reason are required',
-    });
-    return;
-  }
-
-  const reportService = getReportService();
-  const db = getDatabaseService();
-
-  let reportedUserId: string;
-  
-  try {
-    if (reported_user_identifier.includes('@')) {
-      const result = await db.query(
-        "SELECT user_id FROM users WHERE email = $1 AND status != 'deleted'",
-        [reported_user_identifier]
-      );
-      
-      if (result.rows.length === 0) {
-        res.status(404).json({
-          error: 'UserNotFound',
-          message: '해당 이메일의 사용자를 찾을 수 없습니다.',
-        });
-        return;
-      }
-      
-      reportedUserId = result.rows[0].user_id;
-    } else {
-      const result = await db.query(
-        "SELECT user_id FROM users WHERE nickname = $1 AND status != 'deleted'",
-        [reported_user_identifier]
-      );
-      
-      if (result.rows.length === 0) {
-        res.status(404).json({
-          error: 'UserNotFound',
-          message: '해당 닉네임의 사용자를 찾을 수 없습니다.',
-        });
-        return;
-      }
-      
-      reportedUserId = result.rows[0].user_id;
-    }
-  } catch (error) {
-    console.error('Error finding user:', error);
-    res.status(500).json({
-      error: 'InternalError',
-      message: '사용자 조회 중 오류가 발생했습니다.',
-    });
-    return;
-  }
-
-  const report = await reportService.createReport({
-    reporter_id: reporterId,
-    reported_user_id: reportedUserId,
-    reason,
-    description,
-  });
-
-  res.status(201).json({
-    success: true,
-    data: report,
-    message: 'Report submitted successfully',
-  });
-}
-
-export async function createInquiry(
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> {
-  const userId = req.user!.userId;
-  const { subject, message } = req.body;
-
-  if (!subject || !message) {
-    res.status(400).json({
-      error: 'ValidationError',
-      message: 'Subject and message are required',
-    });
-    return;
-  }
-
-  const inquiryService = getInquiryService();
-  const inquiry = await inquiryService.createInquiry({
-    user_id: userId,
-    subject,
-    message,
-  });
-
-  res.status(201).json({
-    success: true,
-    data: inquiry,
-    message: `Inquiry created successfully. Inquiry ID: ${inquiry.inquiryId}`,
-  });
-}
-
-export async function getUserInquiries(
-  req: AuthenticatedRequest,
-  res: Response
-): Promise<void> {
-  const userId = req.user!.userId;
-  const inquiryService = getInquiryService();
-  const inquiries = await inquiryService.getUserInquiries(userId);
-
-  res.json({
-    success: true,
-    data: inquiries,
   });
 }
 

@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: fproject-dev-api
-  EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: auth-api
+  EKS_CLUSTER_NAME: one
 
 jobs:
   deploy-kubernetes:
@@ -50,7 +50,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           # Update image tag in deployment
-          sed -i "s|324547056370.dkr.ecr.us-east-1.amazonaws.com/fproject-dev-api:v11|${{ env.IMAGE }}|g" k8s/deployment.yaml
+          sed -i "s|324547056370.dkr.ecr.ap-northeast-2.amazonaws.com/auth-api:.*|${{ env.IMAGE }}|g" k8s/deployment.yaml
       
       # CSI Driver가 AWS Secrets Manager에서 Secret을 자동으로 생성하므로
       # kubectl create secret 단계는 더 이상 필요 없음
@@ -130,10 +130,10 @@ jobs:
           aws lambda update-function-configuration \
             --function-name fproject-dev-db-query \
             --environment "Variables={
-              USER_POOL_ID=us-east-1_oesTGe9D5,
-              DB_HOST=fproject-dev-postgres.c9eksq6cmh3c.us-east-1.rds.amazonaws.com,
-              DB_NAME=fproject_db,
-              DB_USER=fproject_user,
+              USER_POOL_ID=ap-northeast-2_mFvtIc1kQ,
+              DB_HOST=one-postgres.cricim2es6bi.ap-northeast-2.rds.amazonaws.com,
+              DB_NAME=onedb,
+              DB_USER=oneuser,
               DB_PASSWORD=${{ secrets.DB_PASSWORD }},
               DB_PORT=5432
             }"
